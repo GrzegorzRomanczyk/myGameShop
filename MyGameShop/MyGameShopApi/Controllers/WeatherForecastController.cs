@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -11,29 +12,48 @@ namespace MyGameShopApi.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IWeatherForcastService service;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IWeatherForcastService service)
         {
             _logger = logger;
+            this.service = service;
         }
 
-        [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        //[HttpGet]
+        //public IEnumerable<WeatherForecast> Get()
+        //{
+        //    var resutl = service.Get();
+        //    return resutl;
+        //}
+
+        //[HttpGet("currentDay/{max}")]
+        //public IEnumerable<WeatherForecast> Get2([FromQuery]int take, [FromRoute]int max)
+        //{
+        //    var resutl = service.Get();
+        //    return resutl;
+        //}
+
+        [HttpPost]
+        public ActionResult<string> Hello([FromBody]string name)
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            //HttpContext.Response.StatusCode = 401;
+            //return $"Hello {name}";
+            //return StatusCode(401, $"Hello {name}");
+            return NotFound($"Hello {name}");
+        }
+
+        [HttpPost("generate")]
+        public ActionResult<IEnumerable<WeatherForecast>> NewMethod([FromQuery] int resultCounter, [FromBody]int minTemp)
+        {
+            int maxTemp = 30;
+            if (resultCounter < 0 || minTemp > maxTemp)
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+                return StatusCode(400, "Incorect data inserted");
+            }
+            var resutl = service.Get(resultCounter, minTemp, maxTemp);
+            return StatusCode(200, resutl);
         }
     }
 }
