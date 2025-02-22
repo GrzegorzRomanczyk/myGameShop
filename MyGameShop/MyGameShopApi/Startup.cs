@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyGameShopApi.Controllers;
+using MyGameShopApi.Entities;
 
 namespace MyGameShopApi
 {
@@ -28,11 +29,14 @@ namespace MyGameShopApi
         {
             services.AddTransient<IWeatherForcastService, WeatherForcastService>();
             services.AddControllers();
+            services.AddDbContext<MyGameShopDbContext>();
+            services.AddScoped<MyGameShopSeeder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, MyGameShopSeeder seeder)
         {
+            seeder.Seed();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
