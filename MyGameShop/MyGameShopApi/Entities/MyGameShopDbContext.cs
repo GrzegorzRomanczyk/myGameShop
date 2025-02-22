@@ -17,6 +17,10 @@ namespace MyGameShopApi.Entities
         {
             modelBuilder.Entity<Product>()
                 .Property(r => r.Name)
+                .IsRequired()
+                .HasMaxLength(35);
+            modelBuilder.Entity<Product>()
+                .Property(r => r.PegiId)
                 .IsRequired();
 
             modelBuilder.Entity<Receipt>()

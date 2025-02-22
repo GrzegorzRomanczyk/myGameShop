@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyGameShopApi.Controllers;
 using MyGameShopApi.Entities;
+using MyGameShopApi.Services;
 
 namespace MyGameShopApi
 {
@@ -27,16 +29,17 @@ namespace MyGameShopApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IWeatherForcastService, WeatherForcastService>();
             services.AddControllers();
             services.AddDbContext<MyGameShopDbContext>();
             services.AddScoped<MyGameShopSeeder>();
+            services.AddAutoMapper(this.GetType().Assembly);
+            services.AddScoped<IProductService, ProductService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, MyGameShopSeeder seeder)
         {
-            seeder.Seed();
+            //seeder.Seed();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
