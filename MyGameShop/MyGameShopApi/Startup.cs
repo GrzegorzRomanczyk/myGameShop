@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyGameShopApi.Controllers;
 using MyGameShopApi.Entities;
+using MyGameShopApi.Middleware;
 using MyGameShopApi.Services;
 
 namespace MyGameShopApi
@@ -34,6 +35,8 @@ namespace MyGameShopApi
             services.AddScoped<MyGameShopSeeder>();
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ErrorHandlingMiddleware>();
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,7 +48,15 @@ namespace MyGameShopApi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseMiddleware<ErrorHandlingMiddleware>();
+
             app.UseHttpsRedirection();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyGameShop Api");
+            });
 
             app.UseRouting();
 

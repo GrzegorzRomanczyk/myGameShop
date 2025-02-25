@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MyGameShopApi.Entities;
+using MyGameShopApi.Exceptions;
 using MyGameShopApi.Models;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -12,11 +15,26 @@ namespace MyGameShopApi.Services
     {
         private readonly MyGameShopDbContext dbContext;
         private readonly IMapper mapper;
+        private readonly ILogger<ProductService> logger;
 
-        public ProductService(MyGameShopDbContext dbContext, IMapper mapper)
+        public ProductService(MyGameShopDbContext dbContext, IMapper mapper, ILogger<ProductService> logger)
         {
             this.dbContext = dbContext;
             this.mapper = mapper;
+            this.logger = logger;
+        }
+
+        public void Update(int id, UpdateProductDto dto)
+        {
+            var product = dbContext.Products
+                .FirstOrDefault(r => r.Id == id);
+            if(product is null)
+            {
+                throw new NotFoundException("Product not found");
+            }
+            product.PriceBrutto = dto.PriceBrutto;
+            product.StockCount = dto.StockCount;
+            dbContext.SaveChanges();
         }
 
         public ProductDto GetById(int id)
@@ -26,7 +44,7 @@ namespace MyGameShopApi.Services
                  .FirstOrDefault(r => r.Id == id);
             if (product is null)
             {
-                return null;
+                throw new NotFoundException("Product not found");
             }
             var productDto = mapper.Map<ProductDto>(product);
             return productDto;
@@ -49,17 +67,17 @@ namespace MyGameShopApi.Services
             return product.Id;
         }
 
-        public bool Delete(int id)
+        public void Delete(int id)
         {
+            logger.LogError($"Produckt with id: {id} DELETE action invoked");
             var product = dbContext.Products
                 .FirstOrDefault(r => r.Id == id);
             if(product is null)
             {
-                return false;
+                throw new NotFoundException("Product not found");
             }
             dbContext.Products.Remove(product);
             dbContext.SaveChanges();
-            return true;
         }
     }
 }

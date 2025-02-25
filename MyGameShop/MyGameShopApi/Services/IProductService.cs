@@ -8,6 +8,7 @@ namespace MyGameShopApi.Services
         int Create(CreateProductDto dto);
         IEnumerable<ProductDto> GetAll();
         ProductDto GetById(int id);
-        bool Delete(int id);
+        void Delete(int id);
+        void Update(int id, UpdateProductDto dto);
     }
 }

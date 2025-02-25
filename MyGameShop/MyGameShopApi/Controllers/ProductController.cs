@@ -11,6 +11,7 @@ using System.Linq;
 namespace MyGameShopApi.Controllers
 {
     [Route("api/product")]
+    [ApiController]
     public class ProductController : ControllerBase
     {
         private readonly IProductService productService;
@@ -23,21 +24,20 @@ namespace MyGameShopApi.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete([FromRoute] int id)
         {
-            var isDeleted = productService.Delete(id);
-            if(isDeleted)
-            {
-                return NoContent();
-            }
+            productService.Delete(id);
             return NotFound();
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult Update([FromRoute] int id, [FromBody] UpdateProductDto dto)
+        {
+            productService.Update(id, dto);
+            return Ok();
         }
 
         [HttpPost]
         public ActionResult CreateProduct([FromBody]CreateProductDto dto)
         {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             var id = productService.Create(dto);
             return Created($"/api/product/{id}", null);
         }
@@ -53,10 +53,6 @@ namespace MyGameShopApi.Controllers
         public ActionResult<ProductDto> GetProduct([FromRoute] int id)
         {
             var product = productService.GetById(id);
-            if(product is null)
-            {
-                return NotFound();
-            }
             return Ok(product);
         }
     }
